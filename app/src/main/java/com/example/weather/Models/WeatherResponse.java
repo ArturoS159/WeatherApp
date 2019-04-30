@@ -2,12 +2,14 @@ package com.example.weather.Models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+
 public class WeatherResponse {
     @SerializedName("main")
     private Main main;
 
-/*    @SerializedName("weather")
-    private Weather weather;*/
+    @SerializedName("weather")
+    ArrayList<Weather> weather = new ArrayList<Weather>();
 
     public Main getMain() {
         return main;
@@ -17,11 +19,11 @@ public class WeatherResponse {
         this.main = main;
     }
 
-/*    public Weather getWeather() {
+    public ArrayList<Weather> getWeather() {
         return weather;
     }
 
-    public void setWeather(Weather weather) {
+    public void setWeather(ArrayList<Weather> weather) {
         this.weather = weather;
-    }*/
+    }
 }

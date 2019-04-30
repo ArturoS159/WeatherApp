@@ -1,10 +1,10 @@
 package com.example.weather;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.example.weather.API.WeatherAPI;
 import com.example.weather.Models.WeatherResponse;
 import com.squareup.picasso.Picasso;
@@ -71,9 +71,10 @@ public class WeatherActivity extends AppCompatActivity {
                     textHum.setText(response.body().getMain().getHumidity() + " %");
                     textTempMin.setText(response.body().getMain().getTempMin() + " °C");
                     textTempMax.setText(response.body().getMain().getTempMax() + " °C");
-
-                    Picasso.get().load("http://i.imgur.com/DvpvklR.png").into(imageViewUrl);
-                    //System.out.println(response.body().getWeather());
+                    Picasso.get().load("http://openweathermap.org/img/w/"+response.body().getWeather().get(0).getIcon()+".png").into(imageViewUrl);
+                }else{
+                    Intent returnBtn = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(returnBtn);
                 }
             }
 
