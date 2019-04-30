@@ -3,6 +3,7 @@ package com.example.weather.Models;
 import com.google.gson.annotations.SerializedName;
 
 class Weather {
+
     @SerializedName("icon")
     private String icon;
 

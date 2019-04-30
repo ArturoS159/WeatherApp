@@ -8,8 +8,10 @@ import android.widget.TextView;
 import com.example.weather.API.WeatherAPI;
 import com.example.weather.Models.WeatherResponse;
 import com.squareup.picasso.Picasso;
+
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -73,7 +75,9 @@ public class WeatherActivity extends AppCompatActivity {
                     textTempMax.setText(response.body().getMain().getTempMax() + " °C");
 
                     Picasso.get().load("http://i.imgur.com/DvpvklR.png").into(imageViewUrl);
-                    //System.out.println(response.body().getWeather());
+                    //System.out.println(response.body().getWeather().size());
+                    //System.out.println(response.body().getWeather().get(0));
+
                 }
             }
 
