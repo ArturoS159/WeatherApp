@@ -1,22 +1,15 @@
 package com.example.weather;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.example.weather.API.WeatherAPI;
 import com.example.weather.Models.WeatherResponse;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import com.squareup.picasso.Picasso;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -78,6 +71,9 @@ public class WeatherActivity extends AppCompatActivity {
                     textHum.setText(response.body().getMain().getHumidity() + " %");
                     textTempMin.setText(response.body().getMain().getTempMin() + " °C");
                     textTempMax.setText(response.body().getMain().getTempMax() + " °C");
+
+                    Picasso.get().load("http://i.imgur.com/DvpvklR.png").into(imageViewUrl);
+                    //System.out.println(response.body().getWeather());
                 }
             }
 
