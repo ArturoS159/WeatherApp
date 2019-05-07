@@ -2,6 +2,8 @@ package com.example.weather;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -26,12 +28,13 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView textTempMin;
     private TextView textTempMax;
     private ImageView imageViewUrl;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView( R.layout.activity_weather);
-        String city = getIntent().getCharSequenceExtra("city").toString();
+        final String city = getIntent().getCharSequenceExtra("city").toString();
 
         final String API = "749561a315b14523a8f5f1ef95e45864";
         final String UNITS = "METRIC";
@@ -43,17 +46,41 @@ public class WeatherActivity extends AppCompatActivity {
         textTempMin = findViewById(R.id.textTempMin);
         textTempMax = findViewById(R.id.textTempMax);
         imageViewUrl = findViewById(R.id.imageViewUrl);
+        mSwipeRefreshLayout = findViewById(R.id.swiperefresh);
 
-        getContent(city,API,UNITS);
+        weatherRestart(city,API,UNITS);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                weatherRestart(city,API,UNITS);
+            }});
 
+        final Handler handler = new Handler();
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                weatherRestart(city,API,UNITS);
+                handler.postDelayed(this, 300000);
+            }
+        };
+        handler.post(task);
+    }
+
+    private void weatherRestart(String city,String API,String UNITS){
+        //TODO check internet
+        restartContent(city);
+        getContentFromJson(city,API,UNITS);
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void restartContent(String city){
         LocalTime localTime = LocalTime.now();
         DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
         textTime.setText(localTime.format(timeFormat));
         textCity.setText(city);
-
     }
 
-    private void getContent(String city,String API,String UNITS){
+    private void getContentFromJson(String city,String API,String UNITS){
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://api.openweathermap.org")
                 .addConverterFactory(GsonConverterFactory.create())
