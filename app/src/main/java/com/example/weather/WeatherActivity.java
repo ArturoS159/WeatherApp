@@ -1,17 +1,26 @@
 package com.example.weather;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.example.weather.API.WeatherAPI;
 import com.example.weather.Models.WeatherResponse;
 import com.squareup.picasso.Picasso;
+
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,14 +39,18 @@ public class WeatherActivity extends AppCompatActivity {
     private ImageView imageViewUrl;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
+    private String city;
+    private String API;
+    private String UNITS;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView( R.layout.activity_weather);
-        final String city = getIntent().getCharSequenceExtra("city").toString();
+        city = getIntent().getCharSequenceExtra("city").toString();
+        API = "749561a315b14523a8f5f1ef95e45864";
+        UNITS = "METRIC";
 
-        final String API = "749561a315b14523a8f5f1ef95e45864";
-        final String UNITS = "METRIC";
         textCity = findViewById(R.id.textCity);
         textTime = findViewById(R.id.textTime);
         textTemp = findViewById(R.id.textTemp);
@@ -48,39 +61,66 @@ public class WeatherActivity extends AppCompatActivity {
         imageViewUrl = findViewById(R.id.imageViewUrl);
         mSwipeRefreshLayout = findViewById(R.id.swiperefresh);
 
-        weatherRestart(city,API,UNITS);
+        if(networkCheck()){
+            weatherRestart();
+            start();
+        }else{
+            if(timer!=null){
+                stop();
+            }
+        }
+
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                weatherRestart(city,API,UNITS);
+                if(networkCheck()){
+                    start();
+                    weatherRestart();
+                }else{
+                    if(timer!=null){
+                        stop();
+                    }
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
             }});
+    }
+    private Timer timer;
+    private TimerTask timerTask = new TimerTask() {
 
-        final Handler handler = new Handler();
-        Runnable task = new Runnable() {
-            @Override
-            public void run() {
-                weatherRestart(city,API,UNITS);
-                handler.postDelayed(this, 300000);
-            }
-        };
-        handler.post(task);
+        @Override
+        public void run() {
+            weatherRestart();
+        }
+    };
+
+    private void start() {
+        if(timer != null) {
+            return;
+        }
+        timer = new Timer();
+        timer.scheduleAtFixedRate(timerTask, 0, 300000);
     }
 
-    private void weatherRestart(String city,String API,String UNITS){
-        //TODO check internet
-        restartContent(city);
-        getContentFromJson(city,API,UNITS);
+    private void stop() {
+        timer.cancel();
+        timer = null;
+    }
+
+
+    private void weatherRestart(){
+        restartTime();
+        getContentFromJson();
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
-    private void restartContent(String city){
+    private void restartTime(){
         LocalTime localTime = LocalTime.now();
         DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
         textTime.setText(localTime.format(timeFormat));
         textCity.setText(city);
     }
 
-    private void getContentFromJson(String city,String API,String UNITS){
+    private void getContentFromJson(){
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://api.openweathermap.org")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -110,5 +150,19 @@ public class WeatherActivity extends AppCompatActivity {
                 t.printStackTrace();
             }
         });
+    }
+
+    private boolean networkCheck(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo!=null && networkInfo.isConnected()){
+            return true;
+        }else{
+            Context context = getApplicationContext();
+            Toast toastText = Toast.makeText(context,"Brak połączenia z internetem. Sprawdź połączenie ",Toast.LENGTH_LONG);
+            toastText.setGravity(Gravity.TOP,0,0);
+            toastText.show();
+            return false;
+        }
     }
 }
