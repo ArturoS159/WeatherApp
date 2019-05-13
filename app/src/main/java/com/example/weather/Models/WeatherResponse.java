@@ -3,14 +3,13 @@ package com.example.weather.Models;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class WeatherResponse {
     @SerializedName("main")
     private Main main;
 
     @SerializedName("weather")
-    private java.util.List<Weather> weather = new ArrayList<Weather>();
+    ArrayList<Weather> weather = new ArrayList<Weather>();
 
     public Main getMain() {
         return main;
@@ -20,11 +19,11 @@ public class WeatherResponse {
         this.main = main;
     }
 
-    public List<Weather> getWeather() {
+    public ArrayList<Weather> getWeather() {
         return weather;
     }
 
-    public void setWeather(List<Weather> weather) {
+    public void setWeather(ArrayList<Weather> weather) {
         this.weather = weather;
     }
 }
